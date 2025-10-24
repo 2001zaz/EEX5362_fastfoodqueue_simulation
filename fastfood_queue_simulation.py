@@ -35,7 +35,6 @@ def customer(env, name, cashier, avg_service_time):
         yield env.timeout(service_duration)
         print(f"{name} finished service at {env.now:.2f}")
 
-
 # Customer Generator
 def customer_arrivals(env, cashier, arrival_interval, avg_service_time):
     global total_customers
