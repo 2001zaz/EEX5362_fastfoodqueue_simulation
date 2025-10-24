@@ -2,7 +2,6 @@ import simpy
 import random
 import statistics
 
-
 # Simulation Parameters
 RANDOM_SEED = 42
 SIM_TIME = 120  # total simulation time (minutes)
@@ -47,7 +46,7 @@ def customer_arrivals(env, cashier, arrival_interval, avg_service_time):
 
 
 # Run Simulation Function
-def run_simulation(num_cashiers, arrival_interval, avg_service_time):
+def run_simulation(num_cashiers, arrival_interval, avg_service_time, scenario_name):
     global wait_times, queue_lengths, service_times
     wait_times, queue_lengths, service_times = [], [], []
 
@@ -66,28 +65,56 @@ def run_simulation(num_cashiers, arrival_interval, avg_service_time):
     total_possible_time = num_cashiers * SIM_TIME
     utilization = (total_service_time / total_possible_time) * 100 if total_possible_time > 0 else 0
    
-    print("\n--- Simulation Summary ---")
+    print(f"\n--- {scenario_name} Simulation Summary ---")
     print(f"Cashiers: {num_cashiers}")
     print(f"Average Wait Time: {avg_wait:.2f} minutes") #response time
     print(f"Average Queue Length: {avg_queue:.2f}") #systemload
     print(f"Throughput: {throughput:.2f} customers/minute")
     print(f"Utilization: {utilization:.2f}%") #utilization
     print(f"Customers Served: {len(wait_times)}\n") #throuput
-    return avg_wait, avg_queue, throughput, utilization, len(wait_times)
-
-
+    return{
+        'scenario': scenario_name,
+        'avg_wait': avg_wait,
+        'avg_queue':avg_queue,
+        'throughput': throughput,
+        'utilization': utilization,
+        'customers_served': len(wait_times),
+        'wait_times': wait_times.copy(),
+        'service_times': service_times.copy()
+    }
 # Run 4 Scenarios for testing 
 if __name__ == "__main__":
     print("Fast Food Restaurant Queue Simulation\n")
 
+    #collect result for table
+    results = []
     # Scenario 1 - base case
-    run_simulation(num_cashiers=1, arrival_interval=3, avg_service_time=4)
+    results.append(run_simulation(num_cashiers=1, arrival_interval=3, avg_service_time=4, scenario_name= "Base Case"))
 
     # Scenario 2 - more cashiers
-    run_simulation(num_cashiers=2, arrival_interval=3, avg_service_time=4)
+    results.append(run_simulation(num_cashiers=2, arrival_interval=3, avg_service_time=4, scenario_name= "More Cashier"))
 
     # Scenario 3 - peak time
-    run_simulation(num_cashiers=1, arrival_interval=2, avg_service_time=4)
+    results.append(run_simulation(num_cashiers=1, arrival_interval=2, avg_service_time=4, scenario_name= "Peak Time"))
 
     # Scenario 4 - peak time with two cashier
-    run_simulation(num_cashiers=2, arrival_interval=2, avg_service_time=4)
+    results.append(run_simulation(num_cashiers=2, arrival_interval=2, avg_service_time=4, scenario_name= "Peak + More Cashiers"))
+
+
+    # Create Summary Table
+    print("\n" + "="*80)
+    print("--- EXPERIMENT SUMMARY TABLE ---")
+    print("="*80)
+    
+    # Header
+    print(f"{'Scenario':<20} {'Avg Wait':<12} {'Avg Queue':<12} {'Throughput':<12} {'Utilization(%)':<15} {'Served':<8}")
+    print("-" * 80)
+    
+    # Data rows
+    for result in results:
+        print(f"{result['scenario']:<20} {result['avg_wait']:<12.2f} {result['avg_queue']:<12.2f} {result['throughput']:<12.3f} {result['utilization']:<15.2f} {result['customers_served']:<8}")
+
+
+    print("\n--- Simulation Complete! ---")
+    
+    print("--- Good Bye! ---")
